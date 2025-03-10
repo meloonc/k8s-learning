@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-probe
+  labels:
+    app: pod-probe
+spec:
+  containers:
+    - name: pod-probe
+      image: nginx
+      ports:
+        - containerPort: 80
+      resources:
+        requests:
+          cpu: "100m"
+          memory: 100mi
+        limits:
+          cpu: 200m
+          memory: 200Mi
+      # 如果容器对外提供服务，都应该配置就绪探针，避免流量发送到异常 pod
+      # 就绪探针，确定容器是否可以接受流量
+      readinessProbe:
+        exec: 
+          command:
+            - cat
+            - /tmp/healthy
+        initialDelaySeconds: 30 # 容器启动 30s 后执行该探针
+        periodSeconds: 5 # 每隔 5s 执行一次该探针
+        successThreshold: 5 # 探针执行成功次数，连续探测成功 5 次就是真正成功
+        failureThreshold: 3 # 探针执行失败次数，连续探测失败 3 次就是真正失败
+        
+      # 存活探针，确定容器是否正在运行
+      livenessProbe:
+        httpGet:
+          path: "/health"
+          port: 80
+        initialDelaySeconds: 30 # 容器启动 30s 后执行该探针
+        periodSeconds: 5 # 每隔 5s 执行一次该探针
+        successThreshold: 5 # 探针执行成功次数，连续探测成功 5 次就是真正成功
+        failureThreshold: 3 # 探针执行失败次数，连续探测失败 3 次就是真正失败
+      # 启动探针，确定容器是否启动，如果启动了该探针，其他探针会推迟，直到启动探针执行成功，才执行其他探针
+      # 如果服务启动时间过长，使用该探针
+      startupProbe:
+        grpc:
+          port: 90
+          service: nginx
+        failureThreshold: 30
+        periodSeconds: 10
+  

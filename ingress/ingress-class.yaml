@@ -1,0 +1,14 @@
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: nginx
+  # 通过添加此注解，将此 IngressClass 设置为集群默认值
+  annotations:
+    ingressclass.kubernetes.io/is-default-class: "true"
+spec:
+  controller: k8s.io/ingress-nginx  # 控制器名称
+  # 可选：传递给控制器的参数
+  # parameters:
+  #   apiGroup: k8s.example.com
+  #   kind: IngressParameters
+  #   name: nginx-parameters

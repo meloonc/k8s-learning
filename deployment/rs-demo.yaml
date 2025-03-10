@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: rs-demo
+spec:
+  # pod 副本数量
+  replicas: 3
+  selector: 
+    # 通过 label 进行管理，这里的 label 需要和 template 下的 label 保持一致
+    matchLabels:
+      app: rs-demo
+  template:
+    # pod 模板
+    metadata:
+      labels:
+        app: rs-demo
+    spec:
+      containers:
+        - name: rs-demo-nginx
+          # rs 只能管理副本数量，其他内容的改动无法 apply， 如需滚动更新需要使用 deployment
+          # 比如修改了镜像版本后进行 apply，pod 不会更新
+          image: nginx:1.22
+          ports:
+            - containerPort: 80
+
+    

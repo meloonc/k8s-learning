@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+# 除了 kind 不同其他内容与 rs 基本一致， 但是 deployment 多了滚动更新的能力
+# 本质上 deployment 通过管理 replicaSet 从而间接管理 pod
+kind: Deployment
+metadata:
+  name: nginx-deploy-demo
+spec:
+  selector:
+    matchLabels:
+      app: nginx-deploy-demo
+  # 副本数量，水平扩展
+  replicas: 3
+  strategy: 
+    # 全部重新创建
+    # type: Recreate
+    # 滚动更新，当类型为 RollingUpdate 一定要配置一下 rollingUpdate
+    type: RollingUpdate
+    rollingUpdate:
+      # 升级过程中最多可以多出的 pod 数量，当前情况下升级过程中最多有 3+1 个 pod
+      maxSurge: 1
+      # 升级过程最多不可用的旧版本 pod 数量
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: nginx-deploy-demo
+    spec:
+      containers:
+      - name: nginx-deploy-demo
+        image: nginx
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80

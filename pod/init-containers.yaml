@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: init-demo
+  labels:
+    app: init-demo
+spec:
+  volumes:
+    # 创建一个 volume
+    - name: workdir
+      emptyDir: {}
+  initContainers:
+    - name: install
+      image: busybox
+      # 目录挂在到 work-dir 下，下载百度首页到 work-dir 目录，
+      command:
+        - wget
+        - "-O"
+        - "/work-dir/index.html"
+        - http://baidu.com
+      volumeMounts:
+        - name: workdir
+          mountPath: "/work-dir"
+  containers:
+    - name: nginx
+      image: nginx:latest
+      command: []
+      resources:
+        limits:
+          memory: "128Mi"
+          cpu: "500m"
+      ports:
+        - containerPort: 80
+      volumeMounts:
+      # nginx html 目录指向 workdir
+        - name: workdir
+          mountPath: /usr/share/nginx/html
+      

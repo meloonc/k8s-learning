@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata: 
+  name: ds-demo
+spec:
+  selector:
+    matchLabels:
+      app: ds-demo
+  updateStrategy:
+    type: Ondelete
+  template:
+    metadata:
+      labels:
+        app: ds-demo
+    spec:
+      containers:
+        - name: ds-nginx
+          image: nginx
+          ports:
+            - containerPort: 80
+
+    

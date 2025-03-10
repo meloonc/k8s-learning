@@ -1,0 +1,58 @@
+# deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: myapp
+        image: nginx:latest
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+          # hpa 根据 requests 配置，如果 cpu 使用率超过 50%，则扩容 pod
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+        ports:
+        - containerPort: 80
+---
+## hpa 观察 deployment（其他控制器 sts ） 的 cpu 使用率，水平扩容 pod 的数量
+# apiserver 没有指标查询接口，需要在集群手动安装 metrics-server （扩展的 apiserver， 可通过 k get apiservices 查看）才能采集到集群指标
+# metrics-server 每 15s 采集指标，即负载升高后不会及时进行扩容，最多等待 15s
+# deployment 负载降低后，也不会及时缩容，默认等待 5 分钟后才会缩容
+# 可通过命令创建  k autoscale deployment nginx-deploy-demo --max 10
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: myapp-hpa
+spec:
+  scaleTargetRef:
+    # 目标资源
+    apiVersion: apps/v1
+    kind: Deployment
+    name: myapp
+  # 最小pod数量
+  minReplicas: 1
+  # 最大pod数量
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        # 超过 50% 的 cpu 使用率触发扩容
+        averageUtilization: 50
+
+    
+

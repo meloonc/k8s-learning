@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata: 
+  name: pod-resource-demo
+  labels: 
+    app: pod-resource-demo
+spec:
+  containers:
+    - name: pod-resource-demo
+      image: nginx
+      ports:
+        - containerPort: 80
+      resources:
+        # 如果 requests = limits，调度优先级最高
+        # 调度所需最少的资源
+        requests:
+          # 可压缩资源
+          cpu: 100m
+          # 不可压缩资源
+          memory: 100Mi
+        # 容器的资源使用上限
+        limits:
+          cpu: 200m
+          memory: 200Mi

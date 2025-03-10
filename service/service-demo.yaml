@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-demo-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-demo-service # labelSelector 用来选择 pod
+  template:
+    metadata:
+      labels:
+        app: nginx-demo-service # labelSelector 用来选择 pod
+    spec:
+      containers:
+      - name: nginx-demo-service
+        image: nginx:latest
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80
+---
+# EndpointController 通过 labelSelector 来 watch 指定 pods 的变化，然后更新 service 的 endpoints，实现服务发现和负载均衡
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-demo-service
+spec:
+  # 服务类型，默认为 ClusterIP
+  # ClusterIP 为集群内部服务，只能在节点内部进行访问
+  # 类型设置为 ClusterIP， ClusterIP 设置为 None，不设置 selector， 并且自定义 Endpoints 可以将外部服务暴露到集群内部
+  # NodePort 为节点上的端口，外部服务可以通过 nodeIP:nodePort 访问服务，本质上也是将请求转发到 ClusterIP:port 上。nodePort 在 30000-32767 范围上随机生成，这个 ClusterIP 是由 kube-proxy 自动创建的。nodePort —> clusterIP
+  # LoadBalancer 为云提供商的负载均衡器，外部服务可以通过 LoadBalancer 的 IP 访问服务的 nodePort 端口。 lb —> nodePort —> clusterIP
+  # ExternalName 为 CNAME 记录，外部服务可以通过 CNAME 访问服务的 nodePort 端口。externalName —> nodePort —> clusterIP
+  type: NodePort 
+  selector:
+    app: nginx-demo-service # labelSelector 用来选择 pod
+  ports:
+    # service 的端口
+  - port: 8080
+    # pod 暴露的端口
+    targetPort: 80
+
+# 什么是无头服务？
+# 无头服务是一种特殊的服务类型，它没有 ClusterIP，只有一个 serviceName 和一个端口。不会提供负载均衡功能，应用在访问无头服务时需要自己实现负载均衡，直接访问具体的 pod。
+# 由于 sts 一般具备主从关系、一致性要求，某些操作需要访问主节点、或者从节点，因此不建议在 Service 中做负载均衡。
+
+
+# Endpointslices
+# 如果集群节点较多、 Pod 数量较多，Endpoints 对象会非常大，一旦 Pod 发生变化，节点 watch ApiServer 的压力会非常大。
+# 将 Endpoints 进行拆分，每个 Endpointslices 包含 100 个 endpoints。用来减轻 ApiServer 的压力。ApiServer 只需要 watch Endpointslices，当 Pod 发生变化时，只会更新对应的 Endpointslices。
+# Endpointslices 自动创建。

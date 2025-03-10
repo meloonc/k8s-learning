@@ -1,0 +1,14 @@
+# configmap 挂载 volume 可以热更新
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-configmap
+data:
+  key1: value1
+  key2: value2
+  config: | # | 表示下面按照 yaml 格式解析
+    key1: value1
+    key2: value2
+binaryData:
+  key3: dGVzdA==
+  key4: dGVzdA==

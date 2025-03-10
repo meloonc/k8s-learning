@@ -1,0 +1,8 @@
+# 静态 pod 是由 kubelet 直接管理的， /etc/kubernetes/manifest 下的 yaml 文件
+# /etc/kubernetes//manifests/
+# ├── etcd.yaml
+# ├── kube-apiserver.yaml
+# ├── kube-controller-manager.yaml
+# └── kube-scheduler.yaml
+
+# /etc/kubernetes/manifest 中的 yaml 文件都会被 kubelet 自动创建，即使通过 kubectl 删除，仍然会自动被创建

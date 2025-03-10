@@ -1,0 +1,17 @@
+{
+    "yaml.schemas": {
+        "kubernetes": [
+            "/*.yaml",
+            "/*.yml"
+        ],
+        "/Users/chenchao/Documents/k8s-schema.json": [
+            "file:///Users/chenchao/code/k8s-learning/daemonset/daemonset-demo.yaml",
+            "file:///Users/chenchao/code/k8s-learning/job/job-demo.yaml",
+            "file:///Users/chenchao/code/k8s-learning/configmap/configmap-demo.yaml",
+            "file:///Users/chenchao/code/k8s-learning/config/configmap-demo.yaml"
+        ],
+        "kubernetes://schema/v1@pod": [
+            "file:///Users/chenchao/code/k8s-learning/pod/pod-hook.yaml"
+        ]
+    }
+}

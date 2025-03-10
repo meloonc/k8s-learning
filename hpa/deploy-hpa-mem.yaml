@@ -1,0 +1,80 @@
+# deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: myapp
+        image: nginx:latest
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+          # hpa 根据 requests 配置，如果 cpu 使用率超过 50%，则扩容 pod
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+        ports:
+        - containerPort: 80
+
+--- 
+# 基于内存的 hpa
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: myapp-hpa-mem
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: myapp
+  # 最小pod数量
+  minReplicas: 1
+  # 最大pod数量
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: memory # 内存
+      target:
+        type: Utilization
+        # 超过 30% 的 memory 使用率触发扩容
+        averageUtilization: 30
+  behavior:
+    scaleDown:
+      # 简单理解为缩容冷却时间， 默认 300s
+      stabilizationWindowSeconds: 60
+      # 缩容策略， 默认 60s 内只能缩容 1 个 pod， 60s 内整缩容 10% 的 pod
+      # 有多个策略时， 默认选择更改量大的策略
+      policies:
+      # 一分钟之内只能缩容 1 个 pod
+      - type: Pods
+        value: 1
+        periodSeconds: 60
+      # 一分钟之内整缩容 10% 的 pod
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+      # 选择策略，默认选择更改量大的策略
+      selectPolicy: Max
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      # 一分钟之内只能扩容 1 个 pod
+      - type: Pods
+        value: 1
+        periodSeconds: 60
+      # 一分钟之内整扩容 10% 的 pod
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+
