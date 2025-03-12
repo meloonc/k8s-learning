@@ -1,0 +1,9 @@
+# 将 ip-pool 公布出去，让 lb 可以使用 ip 池，即 ingress-nginx service 中自动绑定了 external-ip
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2-advertisement
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - ip-pool

@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: basic-auth-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/auth-type: basic # 认证类型，开启 basic 认证
+    nginx.ingress.kubernetes.io/auth-secret: basic-auth # 引用 secret 
+    nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required melon' # 认证失败提示语
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: basic.auth.192.168.50.100.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-demo
+            port:
+              number: 80

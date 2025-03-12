@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: canary-weight-ingress
+  labels:
+    name: canary-weight-ingress
+  annotations:
+    # 开启 canary 功能
+    nginx.ingress.kubernetes.io/canary: "true"
+    # 灰度权重，百分比的请求会跳转到灰度环境，蓝绿部署
+    # 优先级最低
+    nginx.ingress.kubernetes.io/canary-weight: "50"
+spec:
+  ingressClassName: nginx
+  rules:
+  # 这里的域名需要和生产环境保持一致，在访问该域名时会根据灰度权重进行跳转
+  - host: prod.192.168.50.100.nip.io
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: canary-demo
+            port: 
+              number: 80

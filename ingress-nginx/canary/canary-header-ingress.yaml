@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: canary-header-ingress
+  labels:
+    name: canary-header-ingress
+  annotations:
+    # 开启 canary 功能
+    nginx.ingress.kubernetes.io/canary: "true"
+    # 灰度规则，根据 header 进行灰度，判断 header 中是否有 canary:xx
+    # 如果不设置 canary-by-header-value 则通过 always 和 never 判断，always 跳转灰度，never 跳转正式环境。 如果是其他的值（不是 always 和 never），则比较其他优先级低的灰度规则，比如权重规则。
+    nginx.ingress.kubernetes.io/canary-by-header: "canary"
+    # 灰度 header 的值，即如果请求头中带有 canary:melon 则会跳转到灰度服务
+    nginx.ingress.kubernetes.io/canary-by-header-value: "melon"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: prod.192.168.50.100.nip.io
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: canary-demo
+            port: 
+              number: 80

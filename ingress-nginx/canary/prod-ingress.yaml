@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prod-ingress
+  labels:
+    name: prod-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: prod.192.168.50.100.nip.io
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: prod-demo
+            port: 
+              number: 80

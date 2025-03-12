@@ -1,0 +1,9 @@
+# 创建 ip 池
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: ip-pool
+  namespace: metallb-system
+spec:
+  addresses:
+    - 192.168.50.100-192.168.50.200

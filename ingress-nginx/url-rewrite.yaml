@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: url-rewrite-ingress
+  labels:
+    name: url-rewrite-ingress
+  annotations:
+    # 重写路径
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    # 配置应用根路径
+    nginx.ingress.kubernetes.io/app-root: /gateway/
+  rules:
+  - host: url.rewrite.192.168.50.100.nip.io
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/gateway(/|$)(.*)"
+        backend:
+          service:
+            name: nginx-demo
+            port: 
+              number: 80

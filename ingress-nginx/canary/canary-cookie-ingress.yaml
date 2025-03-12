@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: canary-cookie-ingress
+  labels:
+    name: canary-cookie-ingress
+  annotations:
+    # 开启 canary 功能
+    nginx.ingress.kubernetes.io/canary: "true"
+    # 灰度规则，根据 cookie 进行灰度，值为 always 跳转到灰度服务，判断 cookie 中是否有 canary=always 
+    nginx.ingress.kubernetes.io/canary-by-cookie: "canary"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: prod.192.168.50.100.nip.io
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: canary-demo
+            port: 
+              number: 80
