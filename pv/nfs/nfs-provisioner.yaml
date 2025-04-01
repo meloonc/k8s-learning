@@ -1,0 +1,3 @@
+## nfs-subdir-external-provisioner https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner
+
+# provisioner 根据 pvc 自动创建 pv，不需要在手动创建 pv

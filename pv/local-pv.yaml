@@ -1,0 +1,26 @@
+# local-pv 实际上是一个目录，在宿主机上创建一个目录，然后将其挂载到容器中，但是在 pv 中配置了节点亲和性，只允许在指定的节点上创建 pv
+# 不需要在 pod 中配置 nodeSelector，因为 pv 已经配置了节点亲和性
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-pv
+spec:
+  storageClassName: local-storage 
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  local:
+    path: /data/k8s/localpv
+  # 节点亲和性
+  nodeAffinity:
+    required:
+      # 节点选择器，选择带有标签kubernetes.io/hostname=dell的节点
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - dell

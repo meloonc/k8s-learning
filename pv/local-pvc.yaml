@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: local-pvc
+spec:
+  # 与 pv 保持一致
+  storageClassName: local-storage 
+  resources:
+    requests:
+      storage: 1Gi
+  accessModes:
+    # 与 pv 保持一致
+    - ReadWriteOnce
